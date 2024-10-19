@@ -34,7 +34,6 @@ public:
   friend class FloatType;
   friend class BooleanType;
   friend class CharType;
-  friend class VectorType;
 
   Value() = default;
 
