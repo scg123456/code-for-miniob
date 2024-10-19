@@ -19,7 +19,7 @@ See the Mulan PSL v2 for more details. */
 class SQLStageEvent;
 
 /**
- * @brief 创建表的执行器
+ * @brief 删除表的执行器
  * @ingroup Executor
  */
 class DropTableExecutor
