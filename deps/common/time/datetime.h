@@ -100,6 +100,9 @@ struct DateTime
   // check whether a string is valid with a xml datetime format
   static bool is_valid_xml_datetime(const string &str);
 
+  // check whether a string is valid with a xml date format
+  static bool check_date(int y, int m, int d);
+
   // Load the referenced values with the year, month and day
   // portions of the date in a single operation
   inline void get_ymd(int &year, int &month, int &day) const { get_ymd(m_date, year, month, day); }
