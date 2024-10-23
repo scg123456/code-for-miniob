@@ -158,11 +158,11 @@ void Value::set_boolean(bool val)
   length_            = sizeof(val);
 }
 
-void Value::set_date(int year, int month, int day)
+void Value::set_date(int y, int m, int d)
 {
   reset();
   attr_type_        = AttrType::DATES;
-  value_.int_value_ = year * 10000 + month * 100 + day;
+  value_.int_value_ = y * 10000 + m * 100 + d;
   length_           = sizeof(value_.int_value_);
 }
 

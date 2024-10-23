@@ -746,7 +746,7 @@ static const yytype_int8 yydefact[] =
       69,    58,    59,    60,    61,    62,    70,    71,    73,     0,
       75,    53,     0,    91,     0,     0,    35,     0,    33,     0,
       88,     0,     0,     0,    74,    76,     0,     0,    40,    41,
-      42,    43,    44,    38,     0,     0,     0,    72,    55,    46,
+      44,    42,    43,    38,     0,     0,     0,    72,    55,    46,
       82,    83,    84,    85,    86,    87,     0,     0,    75,    73,
        0,     0,    35,    51,     0,     0,     0,    79,    81,    78,
       80,    77,    54,    89,    39,     0,    36,     0,    34,    32,
@@ -1927,21 +1927,21 @@ yyreduce:
 #line 1928 "yacc_sql.cpp"
     break;
 
-  case 42: /* type: DATE_T  */
+  case 42: /* type: FLOAT_T  */
 #line 364 "yacc_sql.y"
-               { (yyval.number) = static_cast<int>(AttrType::DATES); }
+               { (yyval.number) = static_cast<int>(AttrType::FLOATS); }
 #line 1934 "yacc_sql.cpp"
     break;
 
-  case 43: /* type: FLOAT_T  */
+  case 43: /* type: VECTOR_T  */
 #line 365 "yacc_sql.y"
-               { (yyval.number) = static_cast<int>(AttrType::FLOATS); }
+               { (yyval.number) = static_cast<int>(AttrType::VECTORS); }
 #line 1940 "yacc_sql.cpp"
     break;
 
-  case 44: /* type: VECTOR_T  */
+  case 44: /* type: DATE_T  */
 #line 366 "yacc_sql.y"
-               { (yyval.number) = static_cast<int>(AttrType::VECTORS); }
+               { (yyval.number) = static_cast<int>(AttrType::DATES); }
 #line 1946 "yacc_sql.cpp"
     break;
 

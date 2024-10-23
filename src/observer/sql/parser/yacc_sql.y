@@ -361,9 +361,9 @@ number:
 type:
     INT_T      { $$ = static_cast<int>(AttrType::INTS); }
     | STRING_T { $$ = static_cast<int>(AttrType::CHARS); }
-    | DATE_T   { $$ = static_cast<int>(AttrType::DATES); }
     | FLOAT_T  { $$ = static_cast<int>(AttrType::FLOATS); }
     | VECTOR_T { $$ = static_cast<int>(AttrType::VECTORS); }
+    | DATE_T   { $$ = static_cast<int>(AttrType::DATES); }
     ;
 insert_stmt:        /*insert   语句的语法解析树*/
     INSERT INTO ID VALUES LBRACE value value_list RBRACE 

@@ -31,19 +31,19 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
 {
   switch (type) {
     case AttrType::DATES: {
-    result.attr_type_ = AttrType::DATES;
-      int y,m,d;
-      if (sscanf(val.value_.pointer_value_, "%d-%d-%d", &y, &m, &d) != 3) {
-        LOG_WARN("invalid date format: %s", val.value_.pointer_value_);
+      result.attr_type_ = AttrType::DATES;
+      int y, m, d;
+      if (3 != sscanf(val.value_.pointer_value_, "%d-%d-%d", &y, &m, &d)) {
+        LOG_WARN("invalid date format: s=%s", val.value_.pointer_value_);
         return RC::INVALID_ARGUMENT;
       }
       bool check_result = common::DateTime::check_date(y, m, d);
       if (!check_result) {
-        LOG_WARN("invalid date format: %s", val.value_.pointer_value_);
+        LOG_WARN("invalid date: y=%d, m=%d, d=%d", y, m, d);
         return RC::INVALID_ARGUMENT;
       }
       result.set_date(y, m, d);
-      } break;
+    } break;
     default: return RC::UNIMPLEMENTED;
   }
   return RC::SUCCESS;
