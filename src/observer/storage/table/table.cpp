@@ -237,6 +237,49 @@ RC Table::insert_record(Record &record)
   return rc;
 }
 
+RC Table::update_record(Record &record, std::string attribute_name, const Value &value)
+{
+  RC rc = RC::SUCCESS;
+
+  Record new_record = record;
+  rc = set_value_to_record(new_record.data(), value, table_meta_.field(attribute_name.c_str()));
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to set value to record. table name=%s, field name=%s, rc=%s",
+              name(), attribute_name.c_str(), strrc(rc));
+    return rc;
+  }
+
+  for (Index *index : indexes_) {
+    rc = index->delete_entry(record.data(), &record.rid());
+    ASSERT(RC::SUCCESS == rc, 
+           "failed to delete entry from index. table name=%s, index name=%s, rid=%s, rc=%s",
+           name(), index->index_meta().name(), record.rid().to_string().c_str(), strrc(rc));
+  }
+  rc = record_handler_->delete_record(&record.rid());
+
+  rc    = record_handler_->insert_record(new_record.data(), table_meta_.record_size(), &new_record.rid());
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Insert record failed. table name=%s, rc=%s", table_meta_.name(), strrc(rc));
+    return rc;
+  }
+
+  rc = insert_entry_of_indexes(new_record.data(), new_record.rid());
+  if (rc != RC::SUCCESS) {  // 可能出现了键值重复
+    RC rc2 = delete_entry_of_indexes(new_record.data(), new_record.rid(), false /*error_on_not_exists*/);
+    if (rc2 != RC::SUCCESS) {
+      LOG_ERROR("Failed to rollback index data when insert index entries failed. table name=%s, rc=%d:%s",
+                name(), rc2, strrc(rc2));
+    }
+    rc2 = record_handler_->delete_record(&new_record.rid());
+    if (rc2 != RC::SUCCESS) {
+      LOG_PANIC("Failed to rollback record data when insert index entries failed. table name=%s, rc=%d:%s",
+                name(), rc2, strrc(rc2));
+    }
+  }
+
+  return rc;
+}
+
 RC Table::visit_record(const RID &rid, function<bool(Record &)> visitor)
 {
   return record_handler_->visit_record(rid, visitor);
