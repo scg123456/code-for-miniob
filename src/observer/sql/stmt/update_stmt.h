@@ -29,22 +29,22 @@ class UpdateStmt : public Stmt
 {
 public:
   UpdateStmt() = default;
-  UpdateStmt(Table *table, const char* attribute_name, const Value value, FilterStmt *filter_stmt);
+  UpdateStmt(Table *table, std::string attribute_name, const Value value, FilterStmt *filter_stmt);
 
 public:
   static RC create(Db *db, const UpdateSqlNode &update_sql, Stmt *&stmt);
 
 public:
   Table *table() const { return table_; }
-  const char* attribute_name() const { return attribute_name_; }
+  std::string attribute_name() const { return attribute_name_; }
   Value value() const { return value_; }
   FilterStmt *filter_stmt() const { return filter_stmt_; }
 
   StmtType type() const override { return StmtType::UPDATE; }
 
 private:
-  Table *table_            = nullptr;
-  const char* attribute_name_    = nullptr;
-  Value value_             = Value();
-  FilterStmt *filter_stmt_ = nullptr;
+  Table *table_                  = nullptr;
+  std::string attribute_name_    = "";
+  Value value_                   = Value();
+  FilterStmt *filter_stmt_       = nullptr;
 };
