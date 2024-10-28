@@ -123,7 +123,7 @@ RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &re
   RC  rc         = RC::SUCCESS;
   int cmp_result = 0;
 
-  if (comp_ == CompOp::LIKE_OP) {
+  if (comp_ == CompOp::LIKE_OP || comp_ == CompOp::NOT_LIKE) {
     cmp_result = left.match_like(right);
   }
   else {
@@ -152,6 +152,9 @@ RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &re
     } break;
     case LIKE_OP: {
       result = (0 == cmp_result);
+    } break;
+    case NOT_LIKE: {
+      result = (1 == cmp_result);
     } break;
     default: {
       LOG_WARN("unsupported comparison. %d", comp_);

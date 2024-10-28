@@ -99,6 +99,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         FROM
         WHERE
         AND
+        NOT
         LIKE
         SET
         ON
@@ -148,6 +149,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <number>              number
 %type <string>              relation
 %type <comp>                comp_op
+%type <comp>                like_op
 %type <rel_attr>            rel_attr
 %type <attr_infos>          attr_def_list
 %type <attr_info>           attr_def
@@ -650,7 +652,7 @@ condition:
       delete $1;
       delete $3;
     }
-    | rel_attr LIKE SSS
+    | rel_attr like_op SSS
     {
       char *tmp = common::substr($3,1,strlen($3)-2);
 
@@ -659,7 +661,7 @@ condition:
       $$->left_attr = *$1;
       $$->right_is_attr = 0;
       $$->right_value = Value(tmp);
-      $$->comp = LIKE_OP;
+      $$->comp = $2;
 
       delete $1;
       free(tmp);
@@ -674,6 +676,11 @@ comp_op:
     | LE { $$ = LESS_EQUAL; }
     | GE { $$ = GREAT_EQUAL; }
     | NE { $$ = NOT_EQUAL; }
+    ;
+
+like_op:
+      LIKE { $$ = LIKE_OP; }
+    | NOT LIKE { $$ = NOT_LIKE; }
     ;
 
 // your code here
