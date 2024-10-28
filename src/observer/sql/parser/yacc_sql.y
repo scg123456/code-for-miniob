@@ -99,6 +99,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         FROM
         WHERE
         AND
+        LIKE
         SET
         ON
         LOAD
@@ -648,6 +649,21 @@ condition:
 
       delete $1;
       delete $3;
+    }
+    | rel_attr LIKE SSS
+    {
+      char *tmp = common::substr($3,1,strlen($3)-2);
+
+      $$ = new ConditionSqlNode;
+      $$->left_is_attr = 1;
+      $$->left_attr = *$1;
+      $$->right_is_attr = 0;
+      $$->right_value = Value(tmp);
+      $$->comp = LIKE_OP;
+
+      delete $1;
+      free(tmp);
+      free($3);
     }
     ;
 

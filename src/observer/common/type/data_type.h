@@ -47,6 +47,14 @@ public:
    */
   virtual int compare(const Value &left, const Value &right) const { return INT32_MAX; }
 
+    /**
+   * @return
+   *  0 表示 left 匹配 right
+   *  1 表示 left 不匹配 right
+   *  INT32_MAX 表示未实现的匹配
+   */
+  virtual int match_like(const Value &left, const Value &right) const { return INT32_MAX; }
+
   /**
    * @brief 计算 left + right，并将结果保存到 result 中
    */

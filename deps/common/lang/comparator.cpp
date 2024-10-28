@@ -66,4 +66,34 @@ int compare_string(void *arg1, int arg1_max_length, void *arg2, int arg2_max_len
   return 0;
 }
 
+int match_like_string(void *arg1, void *arg2)
+{
+  const char *s = (const char *)arg1, *p = (const char *)arg2;
+  const char *star = nullptr, *ss = nullptr;
+
+  while (*s) {
+    if (*p == '_' || *p == *s) {
+        s++;
+        p++;
+    } else if (*p == '%') {
+        star = p++;
+        ss = s;
+    } else if (star) {
+        p = star + 1;
+        s = ++ss;
+    } else {
+        return 1;
+    }
+  }
+
+  while (*p == '%') {
+    p++;
+  }
+
+  if (*p)
+    return 1;
+  else
+    return 0;
+}
+
 }  // namespace common
