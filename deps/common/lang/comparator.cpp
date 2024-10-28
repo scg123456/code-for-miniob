@@ -79,7 +79,6 @@ int match_like_string(void *arg1, void *arg2)
         star = p++;
         ss = s;
     } else if (star) {
-        p = star + 1;
         s = ++ss;
     } else {
         return 1;
