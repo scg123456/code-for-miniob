@@ -73,15 +73,16 @@ int match_like_string(void *arg1, void *arg2)
 
   while (*s) {
     if (*p == '_' || *p == *s) {
-        s++;
-        p++;
+      s++;
+      p++;
     } else if (*p == '%') {
-        star = p++;
-        ss = s;
+      star = p++;
+      ss = s;
     } else if (star) {
-        s = ++ss;
+      p = star + 1;
+      s = ++ss;
     } else {
-        return 1;
+      return 1;
     }
   }
 
