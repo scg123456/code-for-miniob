@@ -41,6 +41,24 @@ ArithmeticExpr *create_arithmetic_expression(ArithmeticExpr::Type type,
   return expr;
 }
 
+/*
+ComparisonExpr *create_comparison_expression(CompOp comp,
+                                             Expression *left_expr,
+                                             Expression *right_expr,
+                                             const char *sql_string,
+                                             YYLTYPE *llocp)
+{
+  switch (left->type()) {
+    case ExprType::VALUE: {
+      unique_ptr<ValueExpr> left = std::
+    }
+  }
+  ComparisonExpr *expr = new ComparisonExpr(comp, left, right);
+  expr->set_name(token_name(sql_string, llocp));
+  return expr;
+}
+*/
+
 UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
                                            Expression *child,
                                            const char *sql_string,
@@ -119,7 +137,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 /** union 中定义各种数据类型，真实生成的代码也是union类型，所以不能有非POD类型的数据 **/
 %union {
   ParsedSqlNode *                            sql_node;
-  ConditionSqlNode *                         condition;
+  Expression *                               condition;
   Value *                                    value;
   enum CompOp                                comp;
   RelAttrSqlNode *                           rel_attr;
@@ -128,7 +146,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   Expression *                               expression;
   std::vector<std::unique_ptr<Expression>> * expression_list;
   std::vector<Value> *                       value_list;
-  std::vector<ConditionSqlNode> *            condition_list;
+  std::vector<std::unique_ptr<Expression>> * condition_list;
   std::vector<RelAttrSqlNode> *              rel_attr_list;
   std::vector<std::string> *                 relation_list;
   char *                                     string;
@@ -599,79 +617,24 @@ condition_list:
       $$ = nullptr;
     }
     | condition {
-      $$ = new std::vector<ConditionSqlNode>;
-      $$->emplace_back(*$1);
-      delete $1;
+      $$ = new std::vector<std::unique_ptr<Expression>>;
+      $$->emplace_back($1);
     }
     | condition AND condition_list {
       $$ = $3;
-      $$->emplace_back(*$1);
-      delete $1;
+      $$->emplace_back($1);
     }
     ;
 condition:
-    rel_attr comp_op value
+    expression comp_op expression
     {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 1;
-      $$->left_attr = *$1;
-      $$->right_is_attr = 0;
-      $$->right_value = *$3;
-      $$->comp = $2;
-
-      delete $1;
-      delete $3;
+      $$ = new ComparisonExpr($2, $1, $3);
+      $$->set_name(token_name(sql_string, &@$));
     }
-    | value comp_op value 
+    | expression like_op expression
     {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 0;
-      $$->left_value = *$1;
-      $$->right_is_attr = 0;
-      $$->right_value = *$3;
-      $$->comp = $2;
-
-      delete $1;
-      delete $3;
-    }
-    | rel_attr comp_op rel_attr
-    {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 1;
-      $$->left_attr = *$1;
-      $$->right_is_attr = 1;
-      $$->right_attr = *$3;
-      $$->comp = $2;
-
-      delete $1;
-      delete $3;
-    }
-    | value comp_op rel_attr
-    {
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 0;
-      $$->left_value = *$1;
-      $$->right_is_attr = 1;
-      $$->right_attr = *$3;
-      $$->comp = $2;
-
-      delete $1;
-      delete $3;
-    }
-    | rel_attr like_op SSS
-    {
-      char *tmp = common::substr($3,1,strlen($3)-2);
-
-      $$ = new ConditionSqlNode;
-      $$->left_is_attr = 1;
-      $$->left_attr = *$1;
-      $$->right_is_attr = 0;
-      $$->right_value = Value(tmp);
-      $$->comp = $2;
-
-      delete $1;
-      free(tmp);
-      free($3);
+      $$ = new ComparisonExpr($2, $1, $3);
+      $$->set_name(token_name(sql_string, &@$));
     }
     ;
 

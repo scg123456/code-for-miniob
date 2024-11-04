@@ -118,10 +118,10 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 120 "yacc_sql.y"
+#line 138 "yacc_sql.y"
 
   ParsedSqlNode *                            sql_node;
-  ConditionSqlNode *                         condition;
+  Expression *                               condition;
   Value *                                    value;
   enum CompOp                                comp;
   RelAttrSqlNode *                           rel_attr;
@@ -130,7 +130,7 @@ union YYSTYPE
   Expression *                               expression;
   std::vector<std::unique_ptr<Expression>> * expression_list;
   std::vector<Value> *                       value_list;
-  std::vector<ConditionSqlNode> *            condition_list;
+  std::vector<std::unique_ptr<Expression>> * condition_list;
   std::vector<RelAttrSqlNode> *              rel_attr_list;
   std::vector<std::string> *                 relation_list;
   char *                                     string;

@@ -77,9 +77,6 @@ QUOTE            [\'\"]
 {WHITE_SAPCE}                                        // ignore whitespace
 \n                                                   ;
 
-[\-]?{DIGIT}+                           yylval->number=atoi(yytext); RETURN_TOKEN(NUMBER);
-[\-]?{DIGIT}+{DOT}{DIGIT}+              yylval->floats=(float)(atof(yytext)); RETURN_TOKEN(FLOAT);
-
 ";"                                     RETURN_TOKEN(SEMICOLON);
 {DOT}                                   RETURN_TOKEN(DOT);
 EXIT                                    RETURN_TOKEN(EXIT);
@@ -123,6 +120,8 @@ BY                                      RETURN_TOKEN(BY);
 STORAGE                                 RETURN_TOKEN(STORAGE);
 FORMAT                                  RETURN_TOKEN(FORMAT);
 {ID}                                    yylval->string=strdup(yytext); RETURN_TOKEN(ID);
+{DIGIT}+                           yylval->number=atoi(yytext); RETURN_TOKEN(NUMBER);
+{DIGIT}+{DOT}{DIGIT}+              yylval->floats=(float)(atof(yytext)); RETURN_TOKEN(FLOAT);
 "("                                     RETURN_TOKEN(LBRACE);
 ")"                                     RETURN_TOKEN(RBRACE);
 
