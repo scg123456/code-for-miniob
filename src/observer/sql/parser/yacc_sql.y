@@ -115,6 +115,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         INTO
         VALUES
         FROM
+        INNER
+        JOIN
         WHERE
         AND
         NOT
@@ -138,18 +140,21 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %union {
   ParsedSqlNode *                            sql_node;
   Expression *                               condition;
+  ConditionSqlNode *                         on_condition;
   Value *                                    value;
   Value *                                    expr_value;
   enum CompOp                                comp;
   RelAttrSqlNode *                           rel_attr;
   std::vector<AttrInfoSqlNode> *             attr_infos;
   AttrInfoSqlNode *                          attr_info;
+  JoinSqlNode *                              relation;
   Expression *                               expression;
   std::vector<std::unique_ptr<Expression>> * expression_list;
   std::vector<Value> *                       value_list;
   std::vector<std::unique_ptr<Expression>> * condition_list;
+  std::vector<ConditionSqlNode> *            on_condition_list;
   std::vector<RelAttrSqlNode> *              rel_attr_list;
-  std::vector<std::string> *                 relation_list;
+  std::vector<JoinSqlNode> *                 relation_list;
   char *                                     string;
   int                                        number;
   float                                      floats;
@@ -164,10 +169,11 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 /** type 定义了各种解析后的结果输出的是什么类型。类型对应了 union 中的定义的成员变量名称 **/
 %type <number>              type
 %type <condition>           condition
+%type <on_condition>        on_condition
 %type <value>               value
 %type <expr_value>          expr_value
 %type <number>              number
-%type <string>              relation
+%type <relation>            relation
 %type <comp>                comp_op
 %type <comp>                like_op
 %type <rel_attr>            rel_attr
@@ -176,6 +182,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <value_list>          value_list
 %type <condition_list>      where
 %type <condition_list>      condition_list
+%type <on_condition_list>   on_condition_list
 %type <string>              storage_format
 %type <relation_list>       rel_list
 %type <expression>          expression
@@ -205,6 +212,8 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 // commands should be a list but I use a single command instead
 %type <sql_node>            commands
 
+%left COMMA
+%left INNER JOIN
 %left '+' '-'
 %left '*' '/'
 %nonassoc UMINUS
@@ -608,24 +617,103 @@ rel_attr:
 
 relation:
     ID {
-      $$ = $1;
+      $$ = new JoinSqlNode;
+      $$->relation_name = $1;
+      $$->join_type = JoinType::UNDEFINED;
+      free($1);
     }
     ;
 rel_list:
     relation {
-      $$ = new std::vector<std::string>();
-      $$->push_back($1);
-      free($1);
+      $$ = new std::vector<JoinSqlNode>;
+      $$->emplace_back(*$1);
+      delete $1;
     }
     | relation COMMA rel_list {
       if ($3 != nullptr) {
         $$ = $3;
       } else {
-        $$ = new std::vector<std::string>;
+        $$ = new std::vector<JoinSqlNode>;
       }
 
-      $$->insert($$->begin(), $1);
-      free($1);
+      $$->emplace($$->begin(), *$1);
+      delete $1;
+    }
+    | rel_list INNER JOIN relation ON on_condition_list {
+      $4->join_type = JoinType::INNER_JOIN;
+      $4->on_conditions = *$6;
+
+      $1->emplace_back(*$4);
+      delete $4;
+      
+      $$ = $1;
+    }
+    ;
+
+on_condition_list:
+    /* empty */
+    {
+      $$ = nullptr;
+    }
+    | on_condition {
+      $$ = new std::vector<ConditionSqlNode>;
+      $$->emplace_back(*$1);
+      delete $1;
+    }
+    | on_condition AND on_condition_list {
+      $$ = $3;
+      $$->emplace_back(*$1);
+      delete $1;
+    }
+    ;
+on_condition:
+    rel_attr comp_op value
+    {
+      $$ = new ConditionSqlNode;
+      $$->left_is_attr = 1;
+      $$->left_attr = *$1;
+      $$->right_is_attr = 0;
+      $$->right_value = *$3;
+      $$->comp = $2;
+
+      delete $1;
+      delete $3;
+    }
+    | value comp_op value 
+    {
+      $$ = new ConditionSqlNode;
+      $$->left_is_attr = 0;
+      $$->left_value = *$1;
+      $$->right_is_attr = 0;
+      $$->right_value = *$3;
+      $$->comp = $2;
+
+      delete $1;
+      delete $3;
+    }
+    | rel_attr comp_op rel_attr
+    {
+      $$ = new ConditionSqlNode;
+      $$->left_is_attr = 1;
+      $$->left_attr = *$1;
+      $$->right_is_attr = 1;
+      $$->right_attr = *$3;
+      $$->comp = $2;
+
+      delete $1;
+      delete $3;
+    }
+    | value comp_op rel_attr
+    {
+      $$ = new ConditionSqlNode;
+      $$->left_is_attr = 0;
+      $$->left_value = *$1;
+      $$->right_is_attr = 1;
+      $$->right_attr = *$3;
+      $$->comp = $2;
+
+      delete $1;
+      delete $3;
     }
     ;
 
