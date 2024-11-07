@@ -167,7 +167,7 @@ RC LogicalPlanGenerator::create_plan(FilterStmt *filter_stmt, unique_ptr<Logical
     }
 
     // 将 expr 转换为 ComparisonExpr 类型
-    ComparisonExpr *cmp_expr = static_cast<ComparisonExpr*>(expr.get());
+    ComparisonExpr *cmp_expr = dynamic_cast<ComparisonExpr*>(expr.get());
     if (cmp_expr == nullptr) {
       rc = RC::UNSUPPORTED;
       LOG_WARN("failed to cast expression to ComparisonExpr");

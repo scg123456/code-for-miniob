@@ -139,6 +139,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   ParsedSqlNode *                            sql_node;
   Expression *                               condition;
   Value *                                    value;
+  Value *                                    expr_value;
   enum CompOp                                comp;
   RelAttrSqlNode *                           rel_attr;
   std::vector<AttrInfoSqlNode> *             attr_infos;
@@ -164,6 +165,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <number>              type
 %type <condition>           condition
 %type <value>               value
+%type <expr_value>          expr_value
 %type <number>              number
 %type <string>              relation
 %type <comp>                comp_op
@@ -422,9 +424,17 @@ value:
       $$ = new Value((int)$1);
       @$ = @1;
     }
+    |'-' NUMBER {
+      $$ = new Value((int)-$2);
+      @$ = @2;
+    }
     |FLOAT {
       $$ = new Value((float)$1);
       @$ = @1;
+    }
+    |'-' FLOAT {
+      $$ = new Value((float)-$2);
+      @$ = @2;
     }
     |SSS {
       char *tmp = common::substr($1,1,strlen($1)-2);
@@ -547,7 +557,7 @@ expression:
     | '-' expression %prec UMINUS {
       $$ = create_arithmetic_expression(ArithmeticExpr::Type::NEGATIVE, $2, nullptr, sql_string, &@$);
     }
-    | value {
+    | expr_value {
       $$ = new ValueExpr(*$1);
       $$->set_name(token_name(sql_string, &@$));
       delete $1;
@@ -562,6 +572,23 @@ expression:
       $$ = new StarExpr();
     }
     // your code here
+    ;
+
+expr_value:
+    NUMBER {
+      $$ = new Value((int)$1);
+      @$ = @1;
+    }
+    |FLOAT {
+      $$ = new Value((float)$1);
+      @$ = @1;
+    }
+    |SSS {
+      char *tmp = common::substr($1,1,strlen($1)-2);
+      $$ = new Value(tmp);
+      free(tmp);
+      free($1);
+    }
     ;
 
 rel_attr:
