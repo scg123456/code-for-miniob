@@ -51,6 +51,26 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
       }
       result.set_date(y, m, d);
     } break;
+    case AttrType::INTS: {
+      result.attr_type_ = AttrType::INTS;
+      char* end;
+      errno = 0; // 重置 errno 以检测溢出
+      long int_value = strtol(val.value_.pointer_value_, &end, 10);
+      
+      // 检查是否有数字被解析
+      if (end == val.value_.pointer_value_) {
+        // 没有数字，设置结果为0
+        result.set_int(0);
+      } else {
+        // 检查是否超出 int 范围
+        if ((int_value > INT32_MAX) || (int_value < INT32_MIN)) {
+          LOG_WARN("integer overflow: s=%s", val.value_.pointer_value_);
+          return RC::INVALID_ARGUMENT;
+        }
+        result.set_int(static_cast<int>(int_value));
+      }
+      // 即使没有解析完整个字符串，也返回 SUCCESS
+    } break;
     default: return RC::UNIMPLEMENTED;
   }
   return RC::SUCCESS;
@@ -63,6 +83,9 @@ int CharType::cast_cost(AttrType type)
   }
   if (type == AttrType::DATES) {
     return 1;
+  }
+  if (type == AttrType::INTS) {
+    return 2;
   }
   return INT32_MAX;
 }
