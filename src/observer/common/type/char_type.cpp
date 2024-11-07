@@ -69,7 +69,25 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
         }
         result.set_int(static_cast<int>(int_value));
       }
-      // 即使没有解析完整个字符串，也返回 SUCCESS
+    } break;
+    case AttrType::FLOATS: {
+      result.attr_type_ = AttrType::FLOATS;
+      char* end;
+      errno = 0; // 重置 errno 以检测溢出
+      double float_value = strtod(val.value_.pointer_value_, &end);
+      
+      // 检查是否有数字被解析
+      if (end == val.value_.pointer_value_) {
+        // 没有数字，设置结果为0.0
+        result.set_float(0.0);
+      } else {
+        // 检查是否超出 double 范围
+        if (errno == ERANGE) {
+          LOG_WARN("float overflow or underflow: s=%s", val.value_.pointer_value_);
+          return RC::INVALID_ARGUMENT;
+        }
+        result.set_float(static_cast<float>(float_value));
+      }
     } break;
     default: return RC::UNIMPLEMENTED;
   }
@@ -86,6 +104,9 @@ int CharType::cast_cost(AttrType type)
   }
   if (type == AttrType::INTS) {
     return 2;
+  }
+  if (type == AttrType::FLOATS) {
+    return 3;
   }
   return INT32_MAX;
 }
