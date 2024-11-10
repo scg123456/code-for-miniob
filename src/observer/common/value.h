@@ -36,6 +36,7 @@ public:
   friend class CharType;
   friend class VectorType;
   friend class DateType;
+  friend class NullType;
 
   Value() = default;
 
@@ -118,6 +119,7 @@ private:
   void set_float(float val);
   void set_string(const char *s, int len = 0);
   void set_string_from_other(const Value &other);
+  void set_null();
 
 private:
   AttrType attr_type_ = AttrType::UNDEFINED;

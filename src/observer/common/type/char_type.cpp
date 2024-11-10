@@ -89,6 +89,10 @@ RC CharType::cast_to(const Value &val, AttrType type, Value &result) const
         result.set_float(static_cast<float>(float_value));
       }
     } break;
+    case AttrType::NULLS: {
+      result.attr_type_ = AttrType::NULLS;
+      result.set_null();
+    } break;
     default: return RC::UNIMPLEMENTED;
   }
   return RC::SUCCESS;
@@ -107,6 +111,9 @@ int CharType::cast_cost(AttrType type)
   }
   if (type == AttrType::FLOATS) {
     return 3;
+  }
+  if (type == AttrType::NULLS) {
+    return 4;
   }
   return INT32_MAX;
 }

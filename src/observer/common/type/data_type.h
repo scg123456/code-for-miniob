@@ -44,6 +44,7 @@ public:
    *  0 表示 left = right
    *  1 表示 left > right
    *  INT32_MAX 表示未实现的比较
+   *  INT32_MIN 表示返回值为NULL
    */
   virtual int compare(const Value &left, const Value &right) const { return INT32_MAX; }
 
@@ -52,6 +53,7 @@ public:
    *  0 表示 left 匹配 right
    *  1 表示 left 不匹配 right
    *  INT32_MAX 表示未实现的匹配
+   *  INT32_MIN 表示返回值为NULL
    */
   virtual int match_like(const Value &left, const Value &right) const { return INT32_MAX; }
 

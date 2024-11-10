@@ -218,6 +218,14 @@ void Value::set_string_from_other(const Value &other)
   }
 }
 
+void Value::set_null()
+{
+  reset();
+  attr_type_ = AttrType::NULLS;
+  value_.pointer_value_ = nullptr;
+  length_               = 0;
+}
+
 const char *Value::data() const
 {
   switch (attr_type_) {

@@ -109,6 +109,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         DATE_T
         FLOAT_T
         VECTOR_T
+        NULL_T
         HELP
         EXIT
         DOT //QUOTE

@@ -135,6 +135,11 @@ RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &re
   }
   
   result         = false;
+
+  if (cmp_result == INT32_MIN) {
+    return rc;
+  }
+
   switch (comp_) {
     case EQUAL_TO: {
       result = (0 == cmp_result);
@@ -321,6 +326,10 @@ bool ArithmeticExpr::equal(const Expression &other) const
 }
 AttrType ArithmeticExpr::value_type() const
 {
+  if (left_->value_type() == AttrType::NULLS || right_->value_type() == AttrType::NULLS) {
+    return AttrType::NULLS;
+  }
+
   if (!right_) {
     return left_->value_type();
   }
@@ -328,6 +337,13 @@ AttrType ArithmeticExpr::value_type() const
   if (left_->value_type() == AttrType::INTS && right_->value_type() == AttrType::INTS &&
       arithmetic_type_ != Type::DIV) {
     return AttrType::INTS;
+  }
+
+  if (arithmetic_type_ == Type::DIV && right_->type() == ExprType::VALUE) {
+    ValueExpr *right_value_expr = static_cast<ValueExpr *>(right_.get());
+    if (right_value_expr->get_value().get_int() == 0) {
+      return AttrType::NULLS;
+    }
   }
 
   return AttrType::FLOATS;
