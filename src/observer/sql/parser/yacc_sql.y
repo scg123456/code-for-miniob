@@ -110,6 +110,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         FLOAT_T
         VECTOR_T
         NULL_T
+        NULLABLE
         HELP
         EXIT
         DOT //QUOTE
@@ -120,6 +121,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         JOIN
         WHERE
         AND
+        IS
         NOT
         LIKE
         SET
@@ -145,7 +147,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   Value *                                    value;
   Value *                                    expr_value;
   enum CompOp                                comp;
-  RelAttrSqlNode *                           rel_attr;
+  RelAttrSqlNode *                           rel_attr;                                      
   std::vector<AttrInfoSqlNode> *             attr_infos;
   AttrInfoSqlNode *                          attr_info;
   JoinSqlNode *                              relation;
@@ -159,6 +161,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
   char *                                     string;
   int                                        number;
   float                                      floats;
+  bool                                       null_able;
 }
 
 %token <number> NUMBER
@@ -178,6 +181,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <comp>                comp_op
 %type <comp>                like_op
 %type <rel_attr>            rel_attr
+%type <null_able>           null_able
 %type <attr_infos>          attr_def_list
 %type <attr_info>           attr_def
 %type <value_list>          value_list
@@ -371,12 +375,13 @@ attr_def_list:
     ;
     
 attr_def:
-    ID type LBRACE number RBRACE 
+    ID type LBRACE number RBRACE null_able
     {
       $$ = new AttrInfoSqlNode;
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = $4;
+      $$->not_null = !$6;
       free($1);
     }
     | ID type
@@ -398,6 +403,20 @@ type:
     | VECTOR_T { $$ = static_cast<int>(AttrType::VECTORS); }
     | DATE_T   { $$ = static_cast<int>(AttrType::DATES); }
     ;
+null_able:
+    /* empty */
+    {
+      $$ = false;
+    }
+    |NULLABLE
+    {
+      $$ = true;
+    }
+    |NOT NULL_T
+    {
+      $$ = false;
+    }
+
 insert_stmt:        /*insert   语句的语法解析树*/
     INSERT INTO ID VALUES LBRACE value value_list RBRACE 
     {
@@ -451,6 +470,10 @@ value:
       $$ = new Value(tmp);
       free(tmp);
       free($1);
+    }
+    |NULL_T {
+      $$ = new Value();
+      $$->make_null();
     }
     ;
 storage_format:
@@ -581,7 +604,9 @@ expression:
     | '*' {
       $$ = new StarExpr();
     }
-    // your code here
+    | ID LBRACE expression RBRACE {
+      $$ = create_aggregate_expression($1, $3, sql_string, &@$);
+    }
     ;
 
 expr_value:
@@ -598,6 +623,10 @@ expr_value:
       $$ = new Value(tmp);
       free(tmp);
       free($1);
+    }
+    |NULL_T {
+      $$ = new Value();
+      $$->make_null();
     }
     ;
 

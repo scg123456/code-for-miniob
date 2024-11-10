@@ -57,6 +57,8 @@ public:
 
   void reset();
 
+  void make_null() { set_null(); }
+
   static RC add(const Value &left, const Value &right, Value &result)
   {
     return DataType::type_instance(result.attr_type())->add(left, right, result);

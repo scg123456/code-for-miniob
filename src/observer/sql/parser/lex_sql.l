@@ -115,6 +115,7 @@ DATE                                    RETURN_TOKEN(DATE_T);
 FLOAT                                   RETURN_TOKEN(FLOAT_T);
 VECTOR                                  RETURN_TOKEN(VECTOR_T);
 NULL                                    RETURN_TOKEN(NULL_T);
+NULLABLE                                RETURN_TOKEN(NULLABLE);
 LOAD                                    RETURN_TOKEN(LOAD);
 DATA                                    RETURN_TOKEN(DATA);
 INFILE                                  RETURN_TOKEN(INFILE);
@@ -124,8 +125,8 @@ BY                                      RETURN_TOKEN(BY);
 STORAGE                                 RETURN_TOKEN(STORAGE);
 FORMAT                                  RETURN_TOKEN(FORMAT);
 {ID}                                    yylval->string=strdup(yytext); RETURN_TOKEN(ID);
-{DIGIT}+                           yylval->number=atoi(yytext); RETURN_TOKEN(NUMBER);
-{DIGIT}+{DOT}{DIGIT}+              yylval->floats=(float)(atof(yytext)); RETURN_TOKEN(FLOAT);
+{DIGIT}+                                yylval->number=atoi(yytext); RETURN_TOKEN(NUMBER);
+{DIGIT}+{DOT}{DIGIT}+                   yylval->floats=(float)(atof(yytext)); RETURN_TOKEN(FLOAT);
 "("                                     RETURN_TOKEN(LBRACE);
 ")"                                     RETURN_TOKEN(RBRACE);
 
