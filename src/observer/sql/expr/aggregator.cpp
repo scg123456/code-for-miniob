@@ -59,6 +59,7 @@ RC AvgAggregator::accumulate(const Value &value)
 {
   if (value_.attr_type() == AttrType::UNDEFINED || value_.attr_type() == AttrType::NULLS) {
     value_ = value;
+    count_++;
     return RC::SUCCESS;
   }
 
