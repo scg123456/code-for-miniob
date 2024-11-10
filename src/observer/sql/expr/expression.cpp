@@ -326,12 +326,12 @@ bool ArithmeticExpr::equal(const Expression &other) const
 }
 AttrType ArithmeticExpr::value_type() const
 {
-  if (left_->value_type() == AttrType::NULLS || right_->value_type() == AttrType::NULLS) {
-    return AttrType::NULLS;
-  }
-
   if (!right_) {
     return left_->value_type();
+  }
+
+  if (left_->value_type() == AttrType::NULLS || right_->value_type() == AttrType::NULLS) {
+    return AttrType::NULLS;
   }
 
   if (left_->value_type() == AttrType::INTS && right_->value_type() == AttrType::INTS &&
