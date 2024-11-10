@@ -339,12 +339,12 @@ AttrType ArithmeticExpr::value_type() const
     return AttrType::INTS;
   }
 
-  if (arithmetic_type_ == Type::DIV && right_->type() == ExprType::VALUE) {
-    ValueExpr *right_value_expr = static_cast<ValueExpr *>(right_.get());
-    if (right_value_expr->get_value().get_int() == 0) {
-      return AttrType::NULLS;
-    }
-  }
+  // if (arithmetic_type_ == Type::DIV && right_->type() == ExprType::VALUE) {
+  //   ValueExpr *right_value_expr = static_cast<ValueExpr *>(right_.get());
+  //   if (right_value_expr->get_value().get_int() == 0) {
+  //     return AttrType::NULLS;
+  //   }
+  // }
 
   return AttrType::FLOATS;
 }
@@ -355,6 +355,11 @@ RC ArithmeticExpr::calc_value(const Value &left_value, const Value &right_value,
 
   const AttrType target_type = value_type();
   value.set_type(target_type);
+
+  if (left_value.attr_type() == AttrType::NULLS || right_value.attr_type() == AttrType::NULLS) {
+    value.set_type(AttrType::NULLS);
+    return rc;
+  }
 
   switch (arithmetic_type_) {
     case Type::ADD: {

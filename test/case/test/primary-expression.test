@@ -44,3 +44,22 @@ insert into exp_table VALUES (6, 8, 7, 6.0, 4.45);
 insert into exp_table VALUES (2, 3, 2, 2.28, 4.94);
 insert into exp_table VALUES (5, 8, 9, 4.69, 3.58);
 ...
+
+select exp_table.id,9*exp_table2.col1/(exp_table.col2+8) from exp_table,exp_table2 where exp_table2.col1/(7-exp_table.col2)*5>8;
+select exp_table.id,3*exp_table2.col1/(exp_table.col2+8) from exp_table,exp_table2 where 6+exp_table2.col1/(4-exp_table.col2)*9>=6;
++ 2 | 0.5
++ 2 | 0.5
++ 2 | 0.75
++ 2 | 1.75
++ 2 | 2
+  6 | 0.6
+  6 | 0.6
+  6 | 0.9
+-- below are some requests executed before(partial) --
+-- init data
+create table exp_table(id int, col1 int, col2 int, col3 float, col4 float);
+create table exp_table2(id int, col1 int);
+insert into exp_table VALUES (6, 5, 9, 9.92, 7.62);
+insert into exp_table VALUES (2, 9, 5, 1.54, 1.68);
+insert into exp_table VALUES (6, 8, 2, 1.9, 8.98);
+...

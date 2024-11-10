@@ -797,6 +797,9 @@ like_op:
     | NOT LIKE { $$ = NOT_LIKE; }
     ;
 
+is_op:
+      IS NULL_T
+
 // your code here
 group_by:
     /* empty */
