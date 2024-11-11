@@ -199,8 +199,18 @@ public:
 
     FieldExpr       *field_expr = speces_[index];
     const FieldMeta *field_meta = field_expr->field().meta();
-    cell.set_type(field_meta->type());
-    cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len());
+    if (field_meta->nullable()) {
+      char temp = this->record_->data()[field_meta->offset() + field_meta->len() - 1];
+      if (temp == '0') {
+        cell.make_null();
+      } else {
+        cell.set_type(field_meta->type());
+        cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len() - 1);
+      }
+    } else {
+      cell.set_type(field_meta->type());
+      cell.set_data(this->record_->data() + field_meta->offset(), field_meta->len());
+    }
     return RC::SUCCESS;
   }
 

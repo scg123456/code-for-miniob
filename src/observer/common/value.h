@@ -58,6 +58,7 @@ public:
   void reset();
 
   void make_null() { set_null(); }
+  bool is_null() const { return attr_type_ == AttrType::NULLS; }
 
   static RC add(const Value &left, const Value &right, Value &result)
   {

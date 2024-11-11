@@ -130,6 +130,14 @@ RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &re
   if (comp_ == CompOp::LIKE_OP || comp_ == CompOp::NOT_LIKE) {
     cmp_result = left.match_like(right);
   }
+  else if (comp_ == CompOp::IS_OP || comp_ == CompOp::IS_NOT) {
+    if (left.is_null() && right.is_null()) {
+      cmp_result = 0;
+    }
+    else {
+      cmp_result = 1;
+    }
+  }
   else {
     cmp_result = left.compare(right);
   }
@@ -163,6 +171,12 @@ RC ComparisonExpr::compare_value(const Value &left, const Value &right, bool &re
       result = (0 == cmp_result);
     } break;
     case NOT_LIKE: {
+      result = (1 == cmp_result);
+    } break;
+    case IS_OP: {
+      result = (0 == cmp_result);
+    } break;
+    case IS_NOT: {
       result = (1 == cmp_result);
     } break;
     default: {

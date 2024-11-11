@@ -129,6 +129,9 @@ void Value::set_data(char *data, int length)
       value_.int_value_ = *(int *)data;
       length_           = length;
     } break;
+    case AttrType::NULLS: {
+      length_ = 0;
+    } break;
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
     } break;

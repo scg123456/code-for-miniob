@@ -242,7 +242,7 @@ RC Table::update_record(Record &record, std::string attribute_name, const Value 
   RC rc = RC::SUCCESS;
 
   Record new_record = record;
-  rc = set_value_to_record(new_record.data(), value, table_meta_.field(attribute_name.c_str()));
+  rc                = set_value_to_record(new_record.data(), value, table_meta_.field(attribute_name.c_str()));
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to set value to record. table name=%s, field name=%s, rc=%s",
               name(), attribute_name.c_str(), strrc(rc));
@@ -257,7 +257,7 @@ RC Table::update_record(Record &record, std::string attribute_name, const Value 
   }
   rc = record_handler_->delete_record(&record.rid());
 
-  rc    = record_handler_->insert_record(new_record.data(), table_meta_.record_size(), &new_record.rid());
+  rc = record_handler_->insert_record(new_record.data(), table_meta_.record_size(), &new_record.rid());
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Insert record failed. table name=%s, rc=%s", table_meta_.name(), strrc(rc));
     return rc;
@@ -342,18 +342,34 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
 
   for (int i = 0; i < value_num && OB_SUCC(rc); i++) {
     const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
-    const Value &    value = values[i];
-    if (field->type() != value.attr_type()) {
-      Value real_value;
-      rc = Value::cast_to(value, field->type(), real_value);
-      if (OB_FAIL(rc)) {
-        LOG_WARN("failed to cast value. table name:%s,field name:%s,value:%s ",
+    const Value     &value = values[i];
+
+    if (field->nullable()) {
+      if (field->type() != value.attr_type() && !value.is_null()) {
+        Value real_value;
+        rc = Value::cast_to(value, field->type(), real_value);
+        if (OB_FAIL(rc)) {
+          LOG_WARN("failed to cast value. table name:%s,field name:%s,value:%s ",
             table_meta_.name(), field->name(), value.to_string().c_str());
-        break;
+          break;
+        }
+        rc = set_nullable_value_to_record(record_data, real_value, field);
+      } else {
+        rc = set_nullable_value_to_record(record_data, value, field);
       }
-      rc = set_value_to_record(record_data, real_value, field);
     } else {
-      rc = set_value_to_record(record_data, value, field);
+      if (field->type() != value.attr_type()) {
+        Value real_value;
+        rc = Value::cast_to(value, field->type(), real_value);
+        if (OB_FAIL(rc)) {
+          LOG_WARN("failed to cast value. table name:%s,field name:%s,value:%s ",
+            table_meta_.name(), field->name(), value.to_string().c_str());
+          break;
+        }
+        rc = set_value_to_record(record_data, real_value, field);
+      } else {
+        rc = set_value_to_record(record_data, value, field);
+      }
     }
   }
   if (OB_FAIL(rc)) {
@@ -376,6 +392,26 @@ RC Table::set_value_to_record(char *record_data, const Value &value, const Field
     }
   }
   memcpy(record_data + field->offset(), value.data(), copy_len);
+  return RC::SUCCESS;
+}
+
+RC Table::set_nullable_value_to_record(char *record_data, const Value &value, const FieldMeta *field)
+{
+  size_t       copy_len = field->len() - 1;
+  const size_t data_len = value.length();
+  if (field->type() == AttrType::CHARS) {
+    if (copy_len > data_len) {
+      copy_len = data_len + 1;
+    }
+  }
+  memcpy(record_data + field->offset(), value.data(), copy_len);
+
+  if (value.is_null()) {
+    memcpy(record_data + field->offset() + copy_len, "0", 1);
+  } else {
+    memcpy(record_data + field->offset() + copy_len, "1", 1);
+  }
+
   return RC::SUCCESS;
 }
 

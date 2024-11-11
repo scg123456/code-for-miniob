@@ -180,6 +180,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
 %type <relation>            relation
 %type <comp>                comp_op
 %type <comp>                like_op
+%type <comp>                is_op
 %type <rel_attr>            rel_attr
 %type <null_able>           null_able
 %type <attr_infos>          attr_def_list
@@ -381,15 +382,22 @@ attr_def:
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = $4;
+      if ($6) {
+        $$->length += 1;
+      }
       $$->not_null = !$6;
       free($1);
     }
-    | ID type
+    | ID type null_able
     {
       $$ = new AttrInfoSqlNode;
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = 4;
+      if ($3) {
+        $$->length += 1;
+      }
+      $$->not_null = !$3;
       free($1);
     }
     ;
@@ -781,6 +789,11 @@ condition:
       $$ = new ComparisonExpr($2, $1, $3);
       $$->set_name(token_name(sql_string, &@$));
     }
+    | expression is_op expression
+    {
+      $$ = new ComparisonExpr($2, $1, $3);
+      $$->set_name(token_name(sql_string, &@$));
+    }
     ;
 
 comp_op:
@@ -798,7 +811,9 @@ like_op:
     ;
 
 is_op:
-      IS NULL_T
+      IS { $$ = IS_OP; }
+    | IS NOT { $$ = IS_NOT; } 
+    ;
 
 // your code here
 group_by:
