@@ -242,7 +242,11 @@ RC Table::update_record(Record &record, std::string attribute_name, const Value 
   RC rc = RC::SUCCESS;
 
   Record new_record = record;
-  rc                = set_value_to_record(new_record.data(), value, table_meta_.field(attribute_name.c_str()));
+  if (table_meta_.field(attribute_name.c_str())->nullable()) {
+    rc = set_nullable_value_to_record(new_record.data(), value, table_meta_.field(attribute_name.c_str()));
+  } else {
+    rc = set_value_to_record(new_record.data(), value, table_meta_.field(attribute_name.c_str()));
+  }
   if (rc != RC::SUCCESS) {
     LOG_ERROR("Failed to set value to record. table name=%s, field name=%s, rc=%s",
               name(), attribute_name.c_str(), strrc(rc));
@@ -384,6 +388,10 @@ RC Table::make_record(int value_num, const Value *values, Record &record)
 
 RC Table::set_value_to_record(char *record_data, const Value &value, const FieldMeta *field)
 {
+  if (value.is_null()) {
+    LOG_WARN("value is null, but field is not nullable. table name:%s, field name:%s", table_meta_.name(), field->name());
+    return RC::INVALID_ARGUMENT;
+  }
   size_t       copy_len = field->len();
   const size_t data_len = value.length();
   if (field->type() == AttrType::CHARS) {

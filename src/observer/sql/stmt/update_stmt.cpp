@@ -26,7 +26,7 @@ UpdateStmt::UpdateStmt(Table *table, std::string attribute_name, const Value val
 RC UpdateStmt::create(Db *db, UpdateSqlNode &update, Stmt *&stmt)
 {
   const char *table_name = update.relation_name.c_str();
-  if (nullptr == db || nullptr == table_name || update.value.length() == 0) {
+  if (nullptr == db || nullptr == table_name || (update.value.length() == 0 && update.value.attr_type() != AttrType::NULLS)) {
     LOG_WARN("invalid argument. db=%p, table_name=%p, value_type=%d", db, table_name, update.value.attr_type());
     return RC::INVALID_ARGUMENT;
   }
