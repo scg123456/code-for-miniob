@@ -415,9 +415,9 @@ RC Table::set_nullable_value_to_record(char *record_data, const Value &value, co
   memcpy(record_data + field->offset(), value.data(), copy_len);
 
   if (value.is_null()) {
-    memcpy(record_data + field->offset() + copy_len, "0", 1);
+    memcpy(record_data + field->offset() + field->len() - 1, "0", 1);
   } else {
-    memcpy(record_data + field->offset() + copy_len, "1", 1);
+    memcpy(record_data + field->offset() + field->len() - 1, "1", 1);
   }
 
   return RC::SUCCESS;
