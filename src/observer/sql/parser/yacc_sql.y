@@ -110,7 +110,6 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         FLOAT_T
         VECTOR_T
         NULL_T
-        NULLABLE
         HELP
         EXIT
         DOT //QUOTE
@@ -416,7 +415,7 @@ null_able:
     {
       $$ = false;
     }
-    |NULLABLE
+    |NULL_T
     {
       $$ = true;
     }
