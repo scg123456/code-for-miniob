@@ -181,6 +181,10 @@ void Value::set_string(const char *s, int len /*= 0*/)
     if (len > 0) {
       len = strnlen(s, len);
     } else {
+      if (strlen(s) > UINT16_MAX) {
+        LOG_WARN("string is too long. s=%s", s);
+        len = UINT16_MAX;
+      }
       len = strlen(s);
     }
     value_.pointer_value_ = new char[len + 1];
