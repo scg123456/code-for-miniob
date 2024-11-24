@@ -87,6 +87,9 @@ public:
   RC update_record(Record &record, std::string attribute_name, const Value &value);
   RC get_record(const RID &rid, Record &record);
 
+  RC write_text(int64_t &offset, int64_t length, const char *data);
+  RC read_text(int64_t offset, int64_t length, char *data) const;
+
   RC recover_insert_record(Record &record);
 
   // TODO refactor
@@ -125,6 +128,7 @@ private:
 
 private:
   RC init_record_handler(const char *base_dir);
+  RC init_text_handler(const char *base_dir);
 
 public:
   Index *find_index(const char *index_name) const;
@@ -135,7 +139,7 @@ private:
   string             base_dir_;
   TableMeta          table_meta_;
   DiskBufferPool    *data_buffer_pool_    = nullptr;  /// 数据文件关联的buffer pool
+  DiskBufferPool    *text_buffer_pool_    = nullptr;  /// 文本文件关联的buffer pool
   RecordFileHandler *record_handler_      = nullptr;  /// 记录操作
-  RecordFileHandler *text_record_handler_ = nullptr;  /// 记录文本操作
   vector<Index *>    indexes_;
 };

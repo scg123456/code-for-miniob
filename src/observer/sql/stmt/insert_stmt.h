@@ -40,6 +40,9 @@ public:
   const Value *values() const { return values_; }
   int          value_amount() const { return value_amount_; }
 
+protected:
+  static const int MAX_TEXT_FIELD_LENGTH = UINT16_MAX;
+
 private:
   Table       *table_        = nullptr;
   const Value *values_       = nullptr;

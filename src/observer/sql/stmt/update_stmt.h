@@ -42,6 +42,9 @@ public:
 
   StmtType type() const override { return StmtType::UPDATE; }
 
+protected:
+  static const int MAX_TEXT_FIELD_LENGTH = UINT16_MAX;
+
 private:
   Table *table_                  = nullptr;
   std::string attribute_name_    = "";

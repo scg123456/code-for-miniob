@@ -274,6 +274,12 @@ public:
   RC redo_deallocate_page(LSN lsn, PageNum page_num);
 
 public:
+  // 用于text数据的读写
+  RC append_data(int64_t &offset, int64_t length, const char *data);
+  
+  RC get_data(int64_t offset, int64_t length, char *data);
+
+public:
   int32_t id() const { return buffer_pool_id_; }
 
   const char *filename() const { return file_name_.c_str(); }

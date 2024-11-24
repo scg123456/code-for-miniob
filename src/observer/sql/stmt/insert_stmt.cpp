@@ -47,6 +47,17 @@ RC InsertStmt::create(Db *db, const InsertSqlNode &inserts, Stmt *&stmt)
     return RC::SCHEMA_FIELD_MISSING;
   }
 
+  // check the text field length
+  const std::vector<FieldMeta> &field_metas = *table_meta.field_metas();
+  for (const FieldMeta &field_meta : field_metas) {
+    if (AttrType::TEXTS == field_meta.type() && values->length() > MAX_TEXT_FIELD_LENGTH) {
+      LOG_WARN("text field length is too long. value len=%d", values->length());
+      return RC::INVALID_ARGUMENT;
+    }
+    ++values;
+  }
+  values = inserts.values.data();
+
   // everything alright
   stmt = new InsertStmt(table, values, value_num);
   return RC::SUCCESS;

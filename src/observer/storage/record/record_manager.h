@@ -300,27 +300,6 @@ public:
 };
 
 /**
- * @brief 负责处理文本存储格式的页面中各种操作
- * @ingroup RecordManager
- * @details 文本存储格式实现
- */
-class TextRecordPageHandler : public RecordPageHandler
-{
-public:
-  TextRecordPageHandler() : RecordPageHandler(StorageFormat::TEXT_FORMAT) {}
-
-  virtual RC insert_record(const char *data, RID *rid) override;
-
-  virtual RC recover_insert_record(const char *data, const RID &rid) override;
-
-  virtual RC delete_record(const RID *rid) override;
-
-  virtual RC update_record(const RID &rid, const char *data) override;
-
-  virtual RC get_record(const RID &rid, Record &record) override;
-};
-
-/**
  * @brief 负责处理 PAX 存储格式的页面中各种操作
  * @ingroup RecordManager
  * @details PAX 格式实现，当前定长记录模式下每个页面的组织大概是这样的：

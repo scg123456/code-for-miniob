@@ -31,46 +31,13 @@ See the Mulan PSL v2 for more details. */
 //       (void *)left.value_.pointer_value_, (void *)right.value_.pointer_value_);
 // }
 
-RC TextType::set_value_from_str(Value &val, const string &data) const
-{
-  // val.set_string(data.c_str());
-
-  // 暂时不懂这里的逻辑，待会再实现
-
-  return RC::SUCCESS;
-}
-
-RC TextType::cast_to(const Value &val, AttrType type, Value &result) const
-{
-  switch (type) {
-    case AttrType::CHARS: {
-      result.attr_type_ = AttrType::CHARS;
-      result.set_string(val.value_.pointer_value_, 4 /* 默认，暂设为4 */);
-    } break;
-    case AttrType::NULLS: {
-      result.attr_type_ = AttrType::NULLS;
-      result.set_null();
-    } break;
-    default: return RC::UNIMPLEMENTED;
-  }
-  return RC::SUCCESS;
-}
-
-int TextType::cast_cost(AttrType type)
-{
-  if (type == AttrType::CHARS) {
-    return 0;
-  }
-  if (type == AttrType::NULLS) {
-    return 1;
-  }
-  return INT32_MAX;
-}
-
 RC TextType::to_string(const Value &val, string &result) const
 {
   stringstream ss;
   ss << val.value_.pointer_value_;
   result = ss.str();
+  if (result.length() > MAX_TEXT_DISPLAY_LEN) {
+    result = result.substr(0, MAX_TEXT_DISPLAY_LEN) + "...";
+  }
   return RC::SUCCESS;
 }

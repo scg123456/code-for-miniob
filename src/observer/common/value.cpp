@@ -37,6 +37,9 @@ Value::Value(const Value &other)
     case AttrType::CHARS: {
       set_string_from_other(other);
     } break;
+    case AttrType::TEXTS: {
+      set_string_from_other(other);
+    } break;
 
     default: {
       this->value_ = other.value_;
@@ -132,6 +135,9 @@ void Value::set_data(char *data, int length)
     case AttrType::NULLS: {
       length_ = 0;
     } break;
+    case AttrType::TEXTS: {
+      set_string(data, length);
+    } break;  
     default: {
       LOG_WARN("unknown data type: %d", attr_type_);
     } break;
@@ -217,7 +223,7 @@ void Value::set_value(const Value &value)
 
 void Value::set_string_from_other(const Value &other)
 {
-  ASSERT(attr_type_ == AttrType::CHARS, "attr type is not CHARS");
+  ASSERT((attr_type_ == AttrType::CHARS || attr_type_ == AttrType::TEXTS), "attr type is not CHARS or TEXTS");
   if (own_data_ && other.value_.pointer_value_ != nullptr && length_ != 0) {
     this->value_.pointer_value_ = new char[this->length_ + 1];
     memcpy(this->value_.pointer_value_, other.value_.pointer_value_, this->length_);

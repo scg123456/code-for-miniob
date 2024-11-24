@@ -47,6 +47,12 @@ RC UpdateStmt::create(Db *db, UpdateSqlNode &update, Stmt *&stmt)
     return RC::SCHEMA_FIELD_MISSING;
   }
 
+  // check the text field length
+  if (AttrType::TEXTS == field->type() && update.value.length() > MAX_TEXT_FIELD_LENGTH) {
+    LOG_WARN("text field length is too long. value len=%d", update.value.length());
+    return RC::INVALID_ARGUMENT;
+  }
+
   binder_context.add_table(table);
   std::unordered_map<std::string, Table *> table_map;
   table_map.insert(std::pair<std::string, Table *>(std::string(table_name), table));

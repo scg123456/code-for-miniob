@@ -48,8 +48,7 @@ enum class StorageFormat
 {
   UNKNOWN_FORMAT = 0,
   ROW_FORMAT,
-  PAX_FORMAT,
-  TEXT_FORMAT
+  PAX_FORMAT
 };
 
 /**
