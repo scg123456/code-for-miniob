@@ -36,8 +36,8 @@ RC TextType::to_string(const Value &val, string &result) const
   stringstream ss;
   ss << val.value_.pointer_value_;
   result = ss.str();
-  if (result.length() > MAX_TEXT_DISPLAY_LEN) {
-    result = result.substr(0, MAX_TEXT_DISPLAY_LEN) + "...";
-  }
+  // if (result.length() > MAX_TEXT_DISPLAY_LEN) {
+  //   result = result.substr(0, MAX_TEXT_DISPLAY_LEN) + "...";
+  // }
   return RC::SUCCESS;
 }

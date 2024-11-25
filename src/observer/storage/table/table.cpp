@@ -765,6 +765,12 @@ RC Table::sync()
     }
   }
 
+  rc = data_buffer_pool_->flush_all_pages();
+  if (rc != RC::SUCCESS) {
+    // LOG_ERROR("Failed to flush text's pages.");
+    return rc;
+  }
+
   if (text_buffer_pool_ != nullptr) {
     rc = text_buffer_pool_->flush_all_pages();
     if (rc != RC::SUCCESS) {
@@ -773,7 +779,6 @@ RC Table::sync()
     }
   }
 
-  rc = data_buffer_pool_->flush_all_pages();
   LOG_INFO("Sync table over. table=%s", name());
   return rc;
 }

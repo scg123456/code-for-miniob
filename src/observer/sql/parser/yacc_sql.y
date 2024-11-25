@@ -394,6 +394,9 @@ attr_def:
       $$->type = (AttrType)$2;
       $$->name = $1;
       $$->length = 4;
+      if ($$->type == AttrType::TEXTS) {
+        $$->length = 16;
+      }
       if ($3) {
         $$->length += 1;
       }
