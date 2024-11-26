@@ -2653,13 +2653,13 @@ yyreduce:
 
   case 108: /* like_op: LIKE  */
 #line 813 "yacc_sql.y"
-           { (yyval.comp) = LIKE_OP; }
+           { (yyval.comp) = CompOp::EQUAL_TO; }
 #line 2658 "yacc_sql.cpp"
     break;
 
   case 109: /* like_op: NOT LIKE  */
 #line 814 "yacc_sql.y"
-               { (yyval.comp) = NOT_LIKE; }
+               { (yyval.comp) = CompOp::EQUAL_TO; }
 #line 2664 "yacc_sql.cpp"
     break;
 
