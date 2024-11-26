@@ -123,7 +123,7 @@ UnboundAggregateExpr *create_aggregate_expression(const char *aggregate_name,
         AND
         IS
         NOT
-        LIKE
+       
         SET
         ON
         LOAD
